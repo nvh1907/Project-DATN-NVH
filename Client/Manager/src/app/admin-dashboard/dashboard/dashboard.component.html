@@ -1,0 +1,142 @@
+<div class="container m-5">
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+              >
+                Doanh thu tháng này
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">$40,000</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-calendar fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-success text-uppercase mb-1"
+              >
+                Doanh thu trong hôm nay
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">$215,000</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-info text-uppercase mb-1"
+              >
+                Tổng kho hiện tại
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">215,000 sản phẩm</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Requests Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+              >
+                Đơn hàng trong ngày
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+            </div>
+            <div class="col-auto">
+                <i class="fal fa-2x fa-cart-shopping text-gray-300"></i>
+              <!-- <i class="fas fa-comments fa-2x text-gray-300"></i> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="d-flex">
+    <div class="card-deck" style="width: 50rem">
+      <div class="card mb-3 shadow card-theme">
+        <div class="card-header card-header-theme">
+          <h4 style="opacity: 0.5; margin: 10px 0 0 1rem">
+            Tổng doanh thu theo tháng
+          </h4>
+        </div>
+        <div class="card-body">
+          <!-- set chart for tổng doanh thu 1 tháng -->
+          <app-line-chart
+            [witdChart]="widthChart"
+            [heightChart]="heightChart"
+            [lineChartData]="lineChartData"
+          ></app-line-chart>
+        </div>
+      </div>
+    </div>
+    <div class="card-deck ms-5" style="width: 28rem">
+      <div class="card mb-3 shadow card-theme">
+        <div class="card-header card-header-theme">
+          <h4 style="opacity: 0.5; margin: 10px 0 0 1rem">
+            Tổng quan khách hàng
+          </h4>
+        </div>
+        <div class="card-body">
+          <!-- pie chart user register and order -->
+          <app-pie-chart></app-pie-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex">
+    <!-- chart for multi product -->
+    <div class="card-deck w-auto">
+      <div class="card mb-3 shadow card-theme">
+        <div class="card-header card-header-theme">
+          <h4 style="opacity: 0.5; margin: 10px 0 0 1rem">
+            So sánh doanh thu giữa các mặt hàng bán chạy
+          </h4>
+        </div>
+        <div class="card-body">
+          <app-line-chart
+            [witdChart]="widthChartTotal"
+            [heightChart]="heightChartTotal"
+            [lineChartData]="lineChartDataTotal"
+          ></app-line-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
