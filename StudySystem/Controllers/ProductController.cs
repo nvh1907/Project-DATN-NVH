@@ -98,13 +98,7 @@ namespace StudySystem.Controllers
         {
             string hosturl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/Product/";
             var rs = await _productService.GetAllProductDetails(hosturl);
-            //foreach (var productDetail in rs.listProductDeatails)
-            //{
-            //    foreach (var image in productDetail.Images)
-            //    {
-            //        image.ImagePath = hosturl + $"{productDetail.ProductId}/" + image.ImagePath;
-            //    }
-            //}
+  
             return new StudySystemAPIResponse<ListProductDetailResponseModel>(StatusCodes.Status200OK, new Response<ListProductDetailResponseModel>(true, rs));
         }
 
