@@ -12,6 +12,8 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -30,6 +32,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     NgxSpinnerModule,
     ReactiveFormsModule,
     FormsModule,
+    NgbModule,
+    NgxExtendedPdfViewerModule,
     ToastrModule.forRoot()
   ]
 })

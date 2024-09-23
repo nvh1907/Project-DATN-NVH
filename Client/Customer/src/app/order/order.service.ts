@@ -48,7 +48,13 @@ export class OrderService {
 
   verifyOrder(item: any): Observable<any> {
     return this.http.post(environment.apiUrl + '/api/vnpay_return/IPN', item).pipe(
-      map((item:any)=> item.response.data)
+      map((item: any) => item.response.data)
+    )
+  }
+
+  notiOrderDone(item: any): Observable<any> {
+    return this.http.post(environment.apiUrl + '/api/noti-mail-order-done', item).pipe(
+      map((item: any) => item.response.data)
     )
   }
 

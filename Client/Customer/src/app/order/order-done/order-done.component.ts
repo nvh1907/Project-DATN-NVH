@@ -21,6 +21,8 @@ export class OrderDoneComponent {
     const getList = sessionStorage.getItem('listItemOrder');
     this.userInfor = getUser ? JSON.parse(getUser) : [];
     this.listOrderItem = getList ? JSON.parse(getList) : [];
+    this.userInfor.ProductNoTiRequest = this.listOrderItem;
+    this.sendNotice(this.userInfor);
     sessionStorage.removeItem('userOrderInfor');
     sessionStorage.removeItem('listItemOrder');
   }
@@ -74,6 +76,12 @@ export class OrderDoneComponent {
 
   sendToServer(orderInfo: any) {
     this.orderService.verifyOrder(orderInfo).subscribe(res => {
+      console.log(res)
+    })
+  }
+
+  sendNotice(data: any) {
+    this.orderService.notiOrderDone(data).subscribe(res => {
       console.log(res)
     })
   }

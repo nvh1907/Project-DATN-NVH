@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { HistoryOderService } from './history-oder.service';
+import { InvoicesService } from 'src/app/invoices/invoices.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-history-oder',
@@ -11,10 +14,13 @@ export class HistoryOderComponent {
   historyOrdeInfor: any;
   isShowDetail: boolean = false;
   orderDetails: any;
+  pdfurl = '';
+
+  @ViewChild('content') popupview !: ElementRef;
   /**
    *
    */
-  constructor(private service: HistoryOderService) {
+  constructor(private service: HistoryOderService, private invoiceService: InvoicesService, private modalservice: NgbModal,private spinner: NgxSpinnerService) {
 
   }
 
@@ -91,4 +97,45 @@ export class HistoryOderComponent {
       this.itemDetails = res
     })
   }
+
+
+  ViewInvoice(item: any) {
+    this.spinner.show();
+    this.invoiceService.GenerateInvoicLink(item.orderId).subscribe(res => {
+      this.spinner.hide();
+      window.open(res, '_blank');
+    }, error => {
+      console.log(error)
+    })
+  }
+
+
+  PrintInvoice(item: any) {
+    this.spinner.show();
+    this.invoiceService.GenerateInvoicePDF(item.orderId).subscribe(res => {
+      let blob: Blob = res.body as Blob;
+      let url = window.URL.createObjectURL(blob);
+      this.pdfurl = url;
+      this.modalservice.open(this.popupview, { size: 'lg' });
+      this.spinner.hide();
+    }, error => {
+      console.log(error)
+    })
+  }
+
+
+  DownloadInvoice(item: any) {
+    this.spinner.show();
+    this.invoiceService.GenerateInvoicePDF(item.orderId).subscribe(res => {
+      let blob: Blob = res.body as Blob;
+      let url = window.URL.createObjectURL(blob);
+
+      let a = document.createElement('a');
+      a.download = item.orderId;
+      a.href = url;
+      a.click();
+      this.spinner.hide();
+    });
+  }
+
 }

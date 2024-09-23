@@ -151,6 +151,7 @@ builder.Services.AddSwaggerGen(options =>
     });
     options.OperationFilter<AuthorizeCheckOperationFilter>();
 });
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -256,5 +257,8 @@ app.UseResponseCompression();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller}/{action}"
+    );
 app.Run();

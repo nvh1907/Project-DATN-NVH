@@ -29,6 +29,7 @@ namespace StudySystem.Data.EF.Repositories.Interfaces
         T Get(object id);
         IQueryable<T> GetAll();
         Task<IEnumerable<T>> GetAllAsyn();
+        Task<IEnumerable<T>> GetAllAsNoTrackingAsyn();
         IQueryable<T> GetAllIncluding(params Expression<Func<T, object>>[] includeProperties);
         Task<T> GetAsync(params object[] id);
         void Save();

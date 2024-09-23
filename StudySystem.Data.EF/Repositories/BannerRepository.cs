@@ -1,11 +1,16 @@
-﻿using LinqToDB;
+﻿using Dapper;
+using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using StudySystem.Data.EF.Repositories.Interfaces;
 using StudySystem.Data.Entites;
 using StudySystem.Data.Models.Request;
 using StudySystem.Data.Models.Response;
+using StudySystem.Infrastructure.Configuration;
 using StudySystem.Infrastructure.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -58,19 +63,21 @@ namespace StudySystem.Data.EF.Repositories
         /// <exception cref="NotImplementedException"></exception>
         public async Task<BannerResponseModel> GetBanner()
         {
-            var query = await _context.Banners.Select(x => new BannerDataModel
+            using (var connection = new NpgsqlConnection(AppSetting.ConnectionString))
             {
-                Id = x.Id,
-                Title = x.Title,
-                Image = x.Image,
-                isActive = x.IsActive,
-                CreateAt = StringUtils.TimeZoneUTC(x.CreateDateAt),
-            }).ToListAsync();
-            BannerResponseModel rs = new BannerResponseModel
-            {
-                Data = query
-            };
-            return rs;
+                // Mở kết nối
+                await connection.OpenAsync();
+
+                // Truy vấn SQL trực tiếp với Dapper
+                var query = await connection.QueryAsync<BannerDataModel>(@"SELECT ""Id"", ""Title"", ""Image"", ""IsActive"" as isActive,(""CreateDateAt"" + INTERVAL '7 hours')  as CreateAt FROM ""Banners"" ");
+
+                BannerResponseModel rs = new BannerResponseModel
+                {
+                    Data = query.ToList()
+                };
+                await connection.CloseAsync();
+                return rs;
+            }
         }
 
         /// <summary>

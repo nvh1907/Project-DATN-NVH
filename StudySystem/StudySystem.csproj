@@ -26,6 +26,7 @@
     <PackageReference Include="NLog" Version="5.2.4" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.6" />
+    <PackageReference Include="PuppeteerSharp" Version="18.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
@@ -47,6 +48,8 @@
 
   <ItemGroup>
     <None Include="C:\Users\xuant\OneDrive\Máy tính\StudySystem\StudySystem\.editorconfig" />
+    <None Include="Views\PdfGenerator\Index.cshtml" />
+    <None Include="Views\pdfHtml\Index.cshtml" />
   </ItemGroup>
 
   <ItemGroup>

@@ -26,5 +26,11 @@ namespace StudySystem.Application.Service.Interfaces
         /// <param name="orderId"></param>
         /// <returns></returns>
         Task<OrderDetailByOderIdResponseModel> GetOrderDetailByOderId(string orderId);
+        /// <summary>
+        /// GetInvoice
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        Task<InvoiceResponseModel> GetInvoice(string orderId);
     }
 }

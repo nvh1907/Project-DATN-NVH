@@ -1,5 +1,5 @@
 import { ChartOptions } from 'chart.js';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-pie-chart',
@@ -7,13 +7,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./pie-chart.component.scss']
 })
 export class PieChartComponent {
+  @Input() pieChartDatasets: any;
   public pieChartOptions: ChartOptions<'pie'> = {
     responsive: false,
   };
   public pieChartLabels = ['Người đăng ký onl', 'Người mua hàng'];
-  public pieChartDatasets = [{
-    data: [500, 200]
-  }];
+
   public pieChartLegend = true;
   public pieChartPlugins = [];
 

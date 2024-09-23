@@ -43,12 +43,18 @@ namespace StudySystem.Data.EF.Repositories.Interfaces
         /// <param name="userId"></param>
         /// <returns></returns>
         Task<OrderInformationByUserResponseModel> GetOrderCustomser(string userId);
-        
+
         /// <summary>
         /// GetOrderDetails
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
         Task<OrderDetailByOderIdResponseModel> GetOrderDetails(string orderId);
+        /// <summary>
+        /// GetInvoice
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        Task<InvoiceResponseModel> GetInvoice(string orderId);
     }
 }

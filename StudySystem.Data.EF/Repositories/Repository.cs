@@ -24,6 +24,11 @@ namespace StudySystem.Data.EF.Repositories
             return await _context.Set<T>().ToListAsync().ConfigureAwait(false);
         }
 
+        public virtual async Task<IEnumerable<T>> GetAllAsNoTrackingAsyn()
+        {
+            return await _context.Set<T>().AsNoTracking().ToListAsync().ConfigureAwait(false);
+        }
+
         public virtual T Get(object id)
         {
             return _context.Set<T>().Find(id);
@@ -186,5 +191,7 @@ namespace StudySystem.Data.EF.Repositories
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+
     }
 }

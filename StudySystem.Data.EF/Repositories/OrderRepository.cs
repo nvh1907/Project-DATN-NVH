@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dapper;
+using System.Data.SqlClient;
+using Npgsql;
 
 namespace StudySystem.Data.EF.Repositories
 {
@@ -53,6 +56,49 @@ namespace StudySystem.Data.EF.Repositories
                 return true;
             }
             return false;
+        }
+
+        public async Task<InvoiceResponseModel> GetInvoice(string orderId)
+        {
+            using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+
+                var query = @"select 
+                o.""OrderId"" as InvoiceId,
+                TO_CHAR(o.""CreateDateAt"" , 'DD-MM-YYYY') as Date,
+	                ud.""UserFullName"" as Buyer, case when o.""Payment"" = '1' then 'CK' else 'TM' end as PaymentMethod,
+	                ab.""AddressReceive"" as Address, '' as AmountInWords, o.""TotalAmount"" as ToTalAmountNotVAT , 0  as ToTalAmountVAT,
+	                o.""TotalAmount"" as ToTalAmount, p.""ProductName"" as ItemName, 'CAI' as Unit, oi.""Quantity"" as Quantity, oi.""Price"" as UnitPrice, oi.""Price"" as AmountNotVAT, 0 as VATRate, 0 as VAT, 
+	                (oi.""Quantity"" * oi.""Price"") as Amount
+                from ""Orders"" o 
+                left join ""OrderItems"" oi  on o.""OrderId"" = oi.""OrderId"" 
+                left join ""UserDetails"" ud on ud.""UserID""  = o.""UserId"" 
+                left join ""AddressBooks"" ab on o.""OrderId""  = ab.""OrderId""
+                left join ""Products"" p  on oi.""ProductId"" = p.""ProductId""
+                where o.""OrderId"" = @orderId";
+                var invoiceDictionary = new Dictionary<string, InvoiceResponseModel>();
+
+                var result = await connection.QueryAsync<InvoiceResponseModel, ItemInvoiceResponseModel, InvoiceResponseModel>(
+                    query,
+                    (invoice, item) =>
+                    {
+                        if (!invoiceDictionary.TryGetValue(invoice.InvoiceId, out var currentInvoice))
+                        {
+                            currentInvoice = invoice;
+                            currentInvoice.Items = new List<ItemInvoiceResponseModel>();
+                            invoiceDictionary.Add(currentInvoice.InvoiceId, currentInvoice);
+                        }
+
+                        currentInvoice.Items.Add(item);
+                        return currentInvoice;
+                    },
+                    param: new { orderId = orderId },
+                    splitOn: "ItemName"
+                );
+
+                return invoiceDictionary.Values.FirstOrDefault();
+            }
         }
 
         /// <summary>

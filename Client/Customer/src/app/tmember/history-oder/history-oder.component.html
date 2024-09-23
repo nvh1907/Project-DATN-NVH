@@ -6,13 +6,17 @@
         <div class="block-homepage-menu__content d-flex justify-content-around">
           <div class="content__item d-flex flex-column align-items-center">
             <p class="item__content title">
-              {{historyOrdeInfor ?  historyOrdeInfor.quantityOrder : 0 }}
+              {{ historyOrdeInfor ? historyOrdeInfor.quantityOrder : 0 }}
             </p>
             <p class="item__content text">đơn hàng</p>
           </div>
           <div class="content__item d-flex flex-column align-items-center">
             <p class="item__content title">
-              {{historyOrdeInfor ?  (historyOrdeInfor.totalAmount | currency: 'VND'): (0 | currency : "VND") }}
+              {{
+                historyOrdeInfor
+                  ? (historyOrdeInfor.totalAmount | currency : "VND")
+                  : (0 | currency : "VND")
+              }}
             </p>
             <p class="item__content text">Tổng tiền tích luỹ</p>
           </div>
@@ -152,7 +156,23 @@
                             *ngIf="item.statusReceiveOrder == 1"
                             target="_blank"
                             rel="noopener"
-                            href="https://view-hddt.cps.onl/Viewer/HoaDonViewer.aspx?mhd=9200cd82-f0cc-4d35-9e39-217e7003c5f0"
+                            (click)="PrintInvoice(item)"
+                            class="btn-info"
+                            >In hóa đơn</a
+                          >
+                          <a
+                            *ngIf="item.statusReceiveOrder == 1"
+                            target="_blank"
+                            rel="noopener"
+                            (click)="DownloadInvoice(item)"
+                            class="btn-info"
+                            >Tải hóa đơn</a
+                          >
+                          <a
+                            *ngIf="item.statusReceiveOrder == 1"
+                            target="_blank"
+                            rel="noopener"
+                            (click)="ViewInvoice(item)"
                             class="btn-info"
                             >Xem hóa đơn</a
                           >
@@ -596,7 +616,7 @@
                   <div class="collapse-title">Số điện thoại cửa hàng:</div>
                 </div>
                 <a href="tel:0326054827" class="support-phone">
-                  (84) 326 054 827
+                  1900.2091
                 </a>
                 <div class="support-title">
                   <div class="call-icon">
@@ -609,11 +629,11 @@
                 </div>
                 <div class="support-address">
                   <a
-                    href="https://mail.google.com/mail/?view=cm&fs=1&to=xuantruong@devtdt.id.vn&su=SUBJECT&body=BODY"
+                    href="https://mail.google.com/mail/?view=cm&fs=1&to=hoanghamobile@gmail.com&su=SUBJECT&body=BODY"
                     target="_blank"
                     class="nav-link"
                     style="color: #d70018"
-                    >xuantruong@devtdt.id.vn</a
+                    >hoanghamobile@gmail.com</a
                   >
                 </div>
               </div>
@@ -807,3 +827,25 @@
     </div>
   </div>
 </div>
+
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="d('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <ngx-extended-pdf-viewer [src]="pdfurl"></ngx-extended-pdf-viewer>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" (click)="d('Cross click')">
+      Đóng
+    </button>
+  </div>
+</ng-template>
+
+
+<ngx-spinner type="ball-scale-multiple"></ngx-spinner>

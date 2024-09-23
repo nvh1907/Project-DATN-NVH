@@ -45,7 +45,7 @@ namespace StudySystem.Application.Service
             _productRepository = unitOfWork.ProductRepository;
             _orderItemRepository = unitOfWork.OrderItemRepository;
         }
-       
+
         /// <summary>
         /// CreatedOrder
         /// </summary>
@@ -334,6 +334,12 @@ namespace StudySystem.Application.Service
                 _logger.LogError(ex.Message);
                 return null;
             }
+        }
+
+        public async Task<InvoiceResponseModel> GetInvoice(string orderId)
+        {
+            var rs = await _orderRepository.GetInvoice(orderId);
+            return rs;
         }
     }
 }

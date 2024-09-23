@@ -259,8 +259,8 @@ namespace StudySystem.Application.Service
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ProductDetailResponseModel> GetProdcutDetail(string productId)
         {
-            var rs = _productRepository.GetProductDetail(productId, _currentUser).First();
-            return rs;
+            var rs = _productRepository.GetProductDetail(productId, _currentUser);
+            return (ProductDetailResponseModel)await rs;
         }
 
         public async Task<ListProductDetailResponseModel> ViewedProduct(ViewedProductRequestModel request)
