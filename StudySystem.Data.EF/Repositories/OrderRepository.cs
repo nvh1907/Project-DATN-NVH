@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Dapper;
 using System.Data.SqlClient;
 using Npgsql;
+using StudySystem.Infrastructure.Configuration;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace StudySystem.Data.EF.Repositories
 {
@@ -163,52 +165,51 @@ namespace StudySystem.Data.EF.Repositories
         /// <returns></returns>
         public async Task<OrdersAllResponseModel> GetOrders()
         {
-            var rs = (from o in _context.Orders.AsNoTracking()
-                      join u in _context.UserDetails.AsNoTracking() on o.UserId equals u.UserID
-                      join a in _context.AddressBooks.AsNoTracking() on o.OrderId equals a.OrderId into addressGroup
-                      from address in addressGroup.DefaultIfEmpty()
-                      join orderItem in _context.OrderItems on o.OrderId equals orderItem.OrderId into orderItemGroup
-                      from oi in orderItemGroup.DefaultIfEmpty()
-                      join product in _context.Products.AsNoTracking() on oi.ProductId equals product.ProductId into productGroup
-                      from p in productGroup.DefaultIfEmpty()
-                      select new
-                      {
-                          Order = o,
-                          User = u,
-                          Address = address,
-                          OrderItem = oi,
-                          Product = p
-                      })
-                      .GroupBy(o => o.Order.OrderId)
-                      .Select(group => new OrdersResponseDataModel
-                      {
-                          OrderId = group.Key,
-                          CustomerName = group.First().User.UserFullName,
-                          CustomerPhone = group.First().User.PhoneNumber,
-                          CustomerEmail = group.First().User.Email,
-                          ReciveType = group.First().Order.ReceiveType,
-                          AddressReceive = group.First().Address != null ? $"{group.First().Address.AddressReceive} {group.First().Address.District} {group.First().Address.Province}" : "",
-                          Note = group.First().Order.Note,
-                          StatusOrder = group.First().Order.Status,
-                          MethodPayment = group.First().Order.Payment,
-                          TotalAmount = group.First().Order.TotalAmount,
-                          ProductOrderListDataModels = group
-                              .Select(oi => new ProductOrderListDataModel
-                              {
-                                  ProductName = oi.Product.ProductName,
-                                  Quantity = oi.OrderItem.Quantity,
-                                  Price = oi.OrderItem.Price
-                              })
-                              .ToList(),
-                          OrderDateAt = DatetimeUtils.TimeZoneUTC(group.First().Order.CreateDateAt).ToString("dd/MM/yyyy HH:mm"),
-                          StatusReceive = group.First().Order.StatusReceive ?? 3,
-                      })
-                      .ToList();
+            var orderItems = await _context.OrderItems.ToListAsync().ConfigureAwait(false);
+            using (var connection = new NpgsqlConnection(AppSetting.ConnectionString))
+            {
+                // Mở kết nối
+                connection.Open();
+                var query = @"SELECT 
+                                    o.""OrderId"" ,
+                                    max(u.""UserFullName"") AS CustomerName,
+                                    max(u.""PhoneNumber"") AS CustomerPhone,
+                                    max(u.""Email"") AS CustomerEmail,
+                                    max(o.""ReceiveType"") AS ReciveType,
+                                    COALESCE(CONCAT(max(a.""AddressReceive""), ' ', max(a.""District"") , ' ', max(a.""Province"")), '') AS AddressReceive,
+                                    max(o.""Note"") as Note ,
+                                    max(o.""Status"") AS StatusOrder,
+                                    max(o.""Payment"") AS MethodPayment,
+                                    (o.""TotalAmount"") as TotalAmount,
+                                    null AS ProductOrderListDataModels,
+                                    COALESCE(TO_CHAR(o.""CreateDateAt"" AT TIME ZONE 'UTC', 'DD/MM/YYYY HH24:MI'), '') AS OrderDateAt,
+                                    COALESCE(o.""StatusReceive"", 3) AS StatusReceive
+                                FROM ""Orders"" o
+                                JOIN ""UserDetails"" u ON o.""UserId""  = u.""UserID"" 
+                                LEFT JOIN ""AddressBooks"" a ON o.""OrderId"" = a.""OrderId"" 
+                                LEFT JOIN ""OrderItems"" oi ON o.""OrderId"" = oi.""OrderId"" 
+                                LEFT JOIN ""Products"" p ON oi.""ProductId"" = p.""ProductId"" 
+                                GROUP BY o.""OrderId"" , u.""UserID"" 
+                                ORDER BY o.""OrderId"" ;";
+                var data = await connection.QueryAsync<OrdersResponseDataModel>(query);
 
+                foreach (var item in data)
+                {
+                    item.ProductOrderListDataModels = orderItems.Where(x => x.OrderId.Equals(item.OrderId)).Select(x => new ProductOrderListDataModel
+                    {
+                        ProductName = _context.Products.First(i => i.ProductId.Equals(x.ProductId)).ProductName,
+                        Quantity = x.Quantity,
+                        Price = x.Price,
+                    }).ToList();
+                }
 
-            OrdersAllResponseModel orders = new OrdersAllResponseModel();
-            orders.Orders = rs;
-            return orders;
+                return new OrdersAllResponseModel()
+                {
+                    Orders = data.ToList()
+                };
+                connection.Close();
+            }
+
         }
         /// <summary>
         /// admin
