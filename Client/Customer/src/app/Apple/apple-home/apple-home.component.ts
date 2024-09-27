@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ProductService } from 'src/app/product/product.service';
 
 @Component({
-  selector: '-home',
+  selector: 'app-apple-home',
   templateUrl: './apple-home.component.html',
   styleUrls: ['./apple-home.component.css']
 })
