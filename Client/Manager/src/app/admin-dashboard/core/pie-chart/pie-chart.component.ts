@@ -8,10 +8,11 @@ import { Component, Input } from '@angular/core';
 })
 export class PieChartComponent {
   @Input() pieChartDatasets: any;
+  @Input() labelChart: any;
+  @Input() stylePieChart: any;
   public pieChartOptions: ChartOptions<'pie'> = {
     responsive: false,
   };
-  public pieChartLabels = ['Người đăng ký onl', 'Người mua hàng'];
 
   public pieChartLegend = true;
   public pieChartPlugins = [];

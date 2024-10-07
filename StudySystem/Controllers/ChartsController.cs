@@ -27,9 +27,9 @@ namespace StudySystem.Controllers
         [HttpGet("~/api/get-statistic")]
         [Authorize]
         [AuthPermission]
-        public async Task<ActionResult<StudySystemAPIResponse<StatisticResponseModel>>> GetStatictic()
+        public async Task<ActionResult<StudySystemAPIResponse<StatisticResponseModel>>> GetStatictic(int month)
         {
-            var rs1 = await _chartService.GetStatisticResponse();
+            var rs1 = await _chartService.GetStatisticResponse(month);
 
             return new StudySystemAPIResponse<StatisticResponseModel>(StatusCodes.Status200OK, new Response<StatisticResponseModel>(true, rs1));
         }

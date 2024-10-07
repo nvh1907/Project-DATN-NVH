@@ -36,7 +36,7 @@ namespace StudySystem.Application.Service
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<StatisticResponseModel> GetStatisticResponse()
+        public async Task<StatisticResponseModel> GetStatisticResponse(int month)
         {
             try
             {
@@ -50,9 +50,10 @@ namespace StudySystem.Application.Service
                     RevenusThisDay = revenusDay,
                     TotalOrderQuantity = totalOrderQuantity,
                     TotalProductQuantity = totalProduct,
-                    RevenusByMonth = RevenusByMonth(),
+                    RevenusByMonth = month == 0 ? RevenusByMonth() : RevenusDayOfMonth(month),
                     OverviewCustomer = await CustomerOverview(),
-                    CompareBestSellingData = GetCompare()
+                    CompareBestSellingData = GetCompare(),
+                    LeastSoldData = GetLeastCompare()
                 };
                 return rs;
             }
@@ -117,6 +118,36 @@ namespace StudySystem.Application.Service
             return result;
         }
 
+        /// <summary>
+        /// func lấy data cho biểu đồ doanh thu theo ngày trong tháng
+        /// </summary>
+        /// <returns></returns>
+        private List<double> RevenusDayOfMonth(int month)
+        {
+            int currentYear = DateTime.UtcNow.Year;
+            int days = DateTime.DaysInMonth(currentYear, month);
+            List<int> allDays = Enumerable.Range(1, days).ToList();
+
+            var dailyTotals = allDays
+                .GroupJoin(
+                    _orderRepository.FindAll(order =>
+                        order.StatusReceive == OrderStatusReceive.IsShipped &&
+                        order.UpdateDateAt.Year == currentYear &&
+                        order.UpdateDateAt.Month == month),
+                    day => day,
+                    order => order.UpdateDateAt.Day,
+                    (day, orderGroup) => new
+                    {
+                        Day = day,
+                        TotalAmount = orderGroup.Sum(order => Convert.ToDouble(order.TotalAmount))
+                    })
+                .OrderBy(result => result.Day);
+
+            List<double> result = dailyTotals.Select(item => (double)item.TotalAmount).ToList();
+
+            return result;
+        }
+
         private async Task<List<double>> CustomerOverview()
         {
             var userResiger = await _userRepository.FindAllAsync(x => !x.UserID.Contains(CommonConstant.UserIdSession))
@@ -141,40 +172,44 @@ namespace StudySystem.Application.Service
             .Take(3)
             .ToList();
 
-            var monthlyRevenue = orders
-                .GroupBy(order => new { order.ProductId, DatetimeUtils.TimeZoneUTC(order.UpdateDateAt).Month })
-                .Select(group => new
-                {
-                    ProductId = group.Key.ProductId,
-                    Month = group.Key.Month,
-                    TotalRevenue = group.Sum(order => order.Quantity * order.Price)
-                })
-                .ToList();
-
             CompareBestSelling compareData = new CompareBestSelling
             {
                 NameProductFirst = _productRepository.Find(x => x.ProductId.Equals(topProducts[0].ProductId)).ProductName,
-                DataProductFirst = new List<double>(),
+                DataProductFirst = (double)topProducts[0].TotalQuantity,
                 NameProductSecond = _productRepository.Find(x => x.ProductId.Equals(topProducts[1].ProductId)).ProductName,
-                DataProductSecond = new List<double>(),
+                DataProductSecond = (double)topProducts[1].TotalQuantity,
                 NameProductLast = _productRepository.Find(x => x.ProductId.Equals(topProducts[2].ProductId)).ProductName,
-                DataProductLast = new List<double>()
+                DataProductLast = (double)topProducts[2].TotalQuantity,
             };
 
-            foreach (var month in Enumerable.Range(1, 12))
+            return compareData;
+        }
+
+        private CompareLeastSold GetLeastCompare()
+        {
+            var orderDone = _orderRepository.FindAll(order => order.StatusReceive == OrderStatusReceive.IsShipped);
+            var orders = _orderItemRepository.FindAll(x => orderDone.Select(o => o.OrderId).Contains(x.OrderId));
+            var topProducts = orders
+            .GroupBy(order => order.ProductId)
+            .Select(group => new
             {
-                var firstProductData = monthlyRevenue
-                    .FirstOrDefault(item => item.ProductId == topProducts[0].ProductId && item.Month == month);
-                compareData.DataProductFirst.Add(Convert.ToDouble(firstProductData?.TotalRevenue));
+                ProductId = group.Key,
+                TotalQuantity = group.Sum(order => order.Quantity)
+            })
+            .OrderBy(item => item.TotalQuantity)
+            .Take(3)
+            .ToList();
 
-                var secondProductData = monthlyRevenue
-                    .FirstOrDefault(item => item.ProductId == topProducts[1].ProductId && item.Month == month);
-                compareData.DataProductSecond.Add(Convert.ToDouble(secondProductData?.TotalRevenue));
+            CompareLeastSold compareData = new CompareLeastSold
+            {
+                NameProductFirst = _productRepository.Find(x => x.ProductId.Equals(topProducts[0].ProductId)).ProductName,
+                DataProductFirst = (double)topProducts[0].TotalQuantity,
+                NameProductSecond = _productRepository.Find(x => x.ProductId.Equals(topProducts[1].ProductId)).ProductName,
+                DataProductSecond = (double)topProducts[1].TotalQuantity,
+                NameProductLast = _productRepository.Find(x => x.ProductId.Equals(topProducts[2].ProductId)).ProductName,
+                DataProductLast = (double)topProducts[2].TotalQuantity,
+            };
 
-                var lastProductData = monthlyRevenue
-                    .FirstOrDefault(item => item.ProductId == topProducts[2].ProductId && item.Month == month);
-                compareData.DataProductLast.Add(Convert.ToDouble(lastProductData?.TotalRevenue));
-            }
             return compareData;
         }
     }

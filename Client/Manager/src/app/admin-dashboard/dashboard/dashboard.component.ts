@@ -8,6 +8,50 @@ import { ChartsService } from 'src/app/service/charts.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
+  userOnlineLabel = ['Người đăng ký onl', 'Người mua hàng'];
+  topSellerlabel: string[] = [];
+  topSellerData: any = [];
+  leastSellerlabel: string[] = [];
+  leastSellerData: any = [];
+  monthVal: number = 0;
+  monthData = [{
+    "month": "0"
+  }, {
+    "month": "1"
+  },
+  {
+    "month": "2"
+  },
+  {
+    "month": "3"
+  },
+  {
+    "month": "4"
+  },
+  {
+    "month": "5"
+  },
+  {
+    "month": "6"
+  },
+  {
+    "month": "7"
+  },
+  {
+    "month": "8"
+  },
+  {
+    "month": "9"
+  },
+  {
+    "month": "10"
+  },
+  {
+    "month": "11"
+  },
+  {
+    "month": "12"
+  }]
 
   constructor(private chart: ChartsService) {
 
@@ -17,8 +61,9 @@ export class DashboardComponent {
   ngOnInit(): void {
     //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
     //Add 'implements OnInit' to the class.
-    this.chart.getDataToShow().subscribe(res => {
-      this.dataAPI = res
+    this.chart.getDataToShow(this.monthVal).subscribe(res => {
+      this.dataAPI = res;
+      // xử lý chart doanh thu
       this.lineChartData = {
         labels: [
           'January',
@@ -45,112 +90,81 @@ export class DashboardComponent {
           }
         ]
       };
-      this.lineChartDataTotal = {
-        labels: [
-          'January',
-          'February',
-          'March',
-          'April',
-          'May',
-          'June',
-          'July',
-          'August',
-          'September',
-          'Octember',
-          'November',
-          'December'
-        ],
-        datasets: [
-          {
-            data: res.compareBestSellingData.dataProductFirst,
-            label: res.compareBestSellingData.nameProductFirst,
-            tension: 0.5,
-            borderColor: 'red',
-          },
-          {
-            data: res.compareBestSellingData.dataProductSecond,
-            label: res.compareBestSellingData.nameProductSecond,
-            tension: 0.5,
-            borderColor: 'blue',
-          },
-          {
-            data: res.compareBestSellingData.dataProductLast,
-            label: res.compareBestSellingData.nameProductLast,
-            tension: 0.5,
-            borderColor: 'yellow',
-          }
-        ]
-      };
+
+      // compare best seller and least seller
+      this.topSellerlabel = [res.compareBestSellingData.nameProductFirst, res.compareBestSellingData.nameProductSecond, res.compareBestSellingData.nameProductLast];
+      this.topSellerData = [{
+        data: [res.compareBestSellingData.dataProductFirst, res.compareBestSellingData.dataProductSecond, res.compareBestSellingData.dataProductLast]
+      }];
+
+      this.leastSellerlabel = [res.leastSoldData.nameProductFirst, res.leastSoldData.nameProductSecond, res.leastSoldData.nameProductLast];
+      this.leastSellerData = [{
+        data: [res.leastSoldData.dataProductFirst, res.leastSoldData.dataProductSecond, res.leastSoldData.dataProductLast]
+      }];
+
+      // xử lý chart pie
       this.pieChartDatasets = [{
         data: res.overviewCustomer
       }]
     });
     this.interval = setInterval(() => {
-      this.chart.getDataToShow().subscribe(res => {
+      this.chart.getDataToShow(this.monthVal).subscribe(res => {
         if (!this.isEqual(this.dataAPI, res)) {
           this.dataAPI = res
-          this.lineChartData = {
-            labels: [
-              'January',
-              'February',
-              'March',
-              'April',
-              'May',
-              'June',
-              'July',
-              'August',
-              'September',
-              'Octember',
-              'November',
-              'December'
-            ],
-            datasets: [
-              {
-                data: res.revenusByMonth,
-                label: 'Doanh thu các tháng trong năm ' + this.thisYear + '(VND)',
-                fill: true,
-                tension: 0.5,
-                borderColor: 'black',
-                backgroundColor: 'rgba(255,0,0,0.3)'
-              }
-            ]
-          };
-          this.lineChartDataTotal = {
-            labels: [
-              'January',
-              'February',
-              'March',
-              'April',
-              'May',
-              'June',
-              'July',
-              'August',
-              'September',
-              'Octember',
-              'November',
-              'December'
-            ],
-            datasets: [
-              {
-                data: res.compareBestSellingData.dataProductFirst,
-                label: res.compareBestSellingData.nameProductFirst,
-                tension: 0.5,
-                borderColor: 'red',
-              },
-              {
-                data: res.compareBestSellingData.dataProductSecond,
-                label: res.compareBestSellingData.nameProductSecond,
-                tension: 0.5,
-                borderColor: 'blue',
-              },
-              {
-                data: res.compareBestSellingData.dataProductLast,
-                label: res.compareBestSellingData.nameProductLast,
-                tension: 0.5,
-                borderColor: 'yellow',
-              }
-            ]
-          };
+          if (this.monthVal == 0) {
+            // xử lý chart doanh thu
+            this.lineChartData = {
+              labels: [
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'Octember',
+                'November',
+                'December'
+              ],
+              datasets: [
+                {
+                  data: res.revenusByMonth,
+                  label: 'Doanh thu các tháng trong năm ' + this.thisYear + '(VND)',
+                  fill: true,
+                  tension: 0.5,
+                  borderColor: 'black',
+                  backgroundColor: 'rgba(255,0,0,0.3)'
+                }
+              ]
+            };
+          } else {
+            this.lineChartData = {
+              labels: this.generateDaysInMonth(this.monthVal, this.thisYear),
+              datasets: [
+                {
+                  data: res.revenusByMonth,
+                  label: 'Doanh thu của tháng ' + this.monthVal + ' năm ' + this.thisYear + '(VND)',
+                  fill: true,
+                  tension: 0.5,
+                  borderColor: 'black',
+                  backgroundColor: 'rgba(255,0,0,0.3)'
+                }
+              ]
+            };
+          }
+          // 3 sản phẩm bán chạy nhất
+          this.topSellerlabel = [res.compareBestSellingData.nameProductFirst, res.compareBestSellingData.nameProductSecond, res.compareBestSellingData.nameProductLast];
+          this.topSellerData = [{
+            data: [res.compareBestSellingData.dataProductFirst, res.compareBestSellingData.dataProductSecond, res.compareBestSellingData.dataProductLast]
+          }];
+          // 3 sản phẩm bán ít nhất
+          this.leastSellerlabel = [res.leastSoldData.nameProductFirst, res.leastSoldData.nameProductSecond, res.leastSoldData.nameProductLast];
+          this.leastSellerData = [{
+            data: [res.leastSoldData.dataProductFirst, res.leastSoldData.dataProductSecond, res.leastSoldData.dataProductLast]
+          }];
+          // thông tin người dùng đăng ký
           this.pieChartDatasets = [{
             data: res.overviewCustomer
           }]
@@ -189,6 +203,66 @@ export class DashboardComponent {
   // compare
   isEqual(obj1: any, obj2: any): boolean {
     return JSON.stringify(obj1) === JSON.stringify(obj2);
+  }
+
+  // hàm check thay đổi 
+  changeStatasticToTal(event: Event) {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+    this.monthVal = parseInt(selectedValue);
+    this.chart.getDataToShow(this.monthVal).subscribe(res => {
+      this.dataAPI = res;
+      if (this.monthVal == 0) {
+        // xử lý chart doanh thu
+        this.lineChartData = {
+          labels: [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'Octember',
+            'November',
+            'December'
+          ],
+          datasets: [
+            {
+              data: res.revenusByMonth,
+              label: 'Doanh thu các tháng trong năm ' + this.thisYear + '(VND)',
+              fill: true,
+              tension: 0.5,
+              borderColor: 'black',
+              backgroundColor: 'rgba(255,0,0,0.3)'
+            }
+          ]
+        };
+      } else {
+        this.lineChartData = {
+          labels: this.generateDaysInMonth(this.monthVal, this.thisYear),
+          datasets: [
+            {
+              data: res.revenusByMonth,
+              label: 'Doanh thu của tháng ' + this.monthVal + ' năm ' + this.thisYear + '(VND)',
+              fill: true,
+              tension: 0.5,
+              borderColor: 'black',
+              backgroundColor: 'rgba(255,0,0,0.3)'
+            }
+          ]
+        };
+      }
+    });
+  }
+
+  generateDaysInMonth(month: number, year: number): Array<number> {
+    // Lấy số ngày trong tháng
+    const date = new Date(year, month, 0);
+    const daysInMonth = date.getDate();
+    // Tạo list từ 1 đến số ngày trong tháng
+    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
   }
 }
 

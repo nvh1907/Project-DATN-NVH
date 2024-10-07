@@ -13,7 +13,11 @@
                 Doanh thu năm nay
               </div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {{ dataAPI.revenusThisYear | currency : "VND" }}
+                {{
+                  dataAPI.revenusThisYear
+                    ? dataAPI.revenusThisYear
+                    : (0 | currency : "VND")
+                }}
               </div>
             </div>
             <div class="col-auto">
@@ -36,7 +40,11 @@
                 Doanh thu trong hôm nay
               </div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {{ dataAPI.revenusThisDay | currency : "VND" }}
+                {{
+                  dataAPI.revenusThisDay
+                    ? dataAPI.revenusThisDay
+                    : (0 | currency : "VND")
+                }}
               </div>
             </div>
             <div class="col-auto">
@@ -99,11 +107,24 @@
   <div class="d-flex">
     <div class="card-deck" style="width: 50rem">
       <div class="card mb-3 shadow card-theme">
-        <div class="card-header card-header-theme">
-          <h4 style="opacity: 0.5; margin: 10px 0 0 1rem">
-            Tổng doanh thu theo tháng
-          </h4>
+        <div
+          class="card-header card-header-theme col-12 d-flex justify-content-between"
+        >
+          <div class="col-8">
+            <h4 style="opacity: 0.5; margin: 10px 0 0 1rem">
+              Thống kê doanh thu
+            </h4>
+          </div>
+          <div class="col-4">
+            <select class="form-select" (change)="changeStatasticToTal($event)">
+              <option *ngFor="let item of monthData" [value]="[item.month]">
+                <p *ngIf="item.month === '0'">Năm {{ thisYear }}</p>
+                <p *ngIf="item.month !== '0'">Tháng {{ item.month }}</p>
+              </option>
+            </select>
+          </div>
         </div>
+
         <div class="card-body">
           <!-- set chart for tổng doanh thu 1 tháng -->
           <app-line-chart
@@ -124,27 +145,46 @@
         <div class="card-body">
           <!-- pie chart user register and order -->
           <app-pie-chart
+            [stylePieChart]="{ width: '25rem' }"
             [pieChartDatasets]="pieChartDatasets"
+            [labelChart]="userOnlineLabel"
           ></app-pie-chart>
         </div>
       </div>
     </div>
   </div>
-  <div class="d-flex">
+  <div class="d-flex justify-content-between">
     <!-- chart for multi product -->
     <div class="card-deck w-auto">
-      <div class="card mb-3 shadow card-theme">
+      <div class="card mb-6 shadow card-theme">
         <div class="card-header card-header-theme">
           <h4 style="opacity: 0.5; margin: 10px 0 0 1rem">
-            So sánh doanh thu giữa các mặt hàng bán chạy
+            Sản phẩm bán chạy nhất
           </h4>
         </div>
-        <div class="card-body">
-          <app-line-chart
-            [witdChart]="widthChartTotal"
-            [heightChart]="heightChartTotal"
-            [lineChartData]="lineChartDataTotal"
-          ></app-line-chart>
+        <div class="">
+          <app-pie-chart
+            [stylePieChart]="{ width: '40rem', height: '500px' }"
+            [pieChartDatasets]="topSellerData"
+            [labelChart]="topSellerlabel"
+          ></app-pie-chart>
+        </div>
+      </div>
+    </div>
+    <!-- san pham ban e -->
+    <div class="card-deck w-auto ml-5">
+      <div class="card mb-6 shadow card-theme">
+        <div class="card-header card-header-theme">
+          <h4 style="opacity: 0.5; margin: 10px 0 0 1rem">
+            Sản phẩm bán ra ít nhất
+          </h4>
+        </div>
+        <div class="">
+          <app-pie-chart
+            [stylePieChart]="{ width: '40rem', height: '500px' }"
+            [pieChartDatasets]="topSellerData"
+            [labelChart]="topSellerlabel"
+          ></app-pie-chart>
         </div>
       </div>
     </div>

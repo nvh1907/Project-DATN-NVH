@@ -13,11 +13,11 @@ export class ChartsService {
     // Lấy token từ session
     return sessionStorage.getItem("token_admin");
   }
-  getDataToShow(): Observable<any> {
+  getDataToShow(month: number): Observable<any> {
     const options = {
       headers: new HttpHeaders().append("Authorization", "Bearer " + this.getToken()),
     }
-    return this.http.get(environment.apiUrl + '/api/get-statistic', options).pipe(
+    return this.http.get(environment.apiUrl + '/api/get-statistic?month=' + month, options).pipe(
       map((item: any) => item.response.data)
     )
   }

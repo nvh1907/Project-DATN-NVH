@@ -1,9 +1,9 @@
 <canvas
-  width="400rem"
+  [style]="stylePieChart"
   baseChart
   [type]="'pie'"
   [datasets]="pieChartDatasets"
-  [labels]="pieChartLabels"
+  [labels]="labelChart"
   [options]="pieChartOptions"
   [plugins]="pieChartPlugins"
   [legend]="pieChartLegend"

@@ -9,6 +9,6 @@ namespace StudySystem.Application.Service.Interfaces
 {
     public interface IChartService : IBaseService
     {
-        Task<StatisticResponseModel> GetStatisticResponse();
+        Task<StatisticResponseModel> GetStatisticResponse(int month);
     }
 }
